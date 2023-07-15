@@ -1,0 +1,11 @@
+cd authentication && python manage.py runserver localhost:1290
+source ../venv/bin/activate && python manage.py runserver localhost:1290
+
+python manage.py makemigrations && python manage.py migrate
+
+CREATE DATABASE nova_crypto;
+CREATE USER crypto_admin WITH PASSWORD 'novacryptotradingplatform';
+ALTER ROLE crypto_admin SET client_encoding TO 'utf8';
+ALTER ROLE crypto_admin SET default_transaction_isolation TO 'read committed';
+ALTER ROLE crypto_admin SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE nova_crypto TO crypto_admin;
