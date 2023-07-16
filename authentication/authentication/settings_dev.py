@@ -8,7 +8,7 @@ DATABASES = {
         'NAME': 'nova_crypto',
         'USER': 'crypto_admin',
         'PASSWORD': 'novacryptotradingplatform',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '',
     }
 }
