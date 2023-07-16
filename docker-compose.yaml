@@ -1,0 +1,34 @@
+version: '3'
+services:
+  authentication:
+    build:
+      context: ./authentication
+    ports:
+      - 1290:1290
+    volumes:
+      - ./authentication:/app
+    depends_on:
+      - db
+    environment:
+        POSTGRES_DB: nova_crypto
+        POSTGRES_USER: crypto_admin
+        POSTGRES_PASSWORD: novacryptotradingplatform
+  
+  platform_api:
+    build:
+      context: ./platform_api
+    ports:
+      - 2500:2500
+  db:
+      image: postgres:alpine
+      container_name: postgres_db
+      restart: always
+      environment:
+        POSTGRES_DB: nova_crypto
+        POSTGRES_USER: crypto_admin
+        POSTGRES_PASSWORD: novacryptotradingplatform
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
