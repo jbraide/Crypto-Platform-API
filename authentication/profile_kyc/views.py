@@ -6,6 +6,7 @@ from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import UserProfile, KYC
+
 from .serializers import (
     # Account
     CreateUserSerializer,
@@ -68,8 +69,8 @@ class CreateUserProfileView(CreateAPIView):
             raise serializers.ValidationError(
                 {'error': 'You have already created your profile'}
             )
-
         return super().perform_create(serializer)
+    
 
 class GetCustomerProifleView(ListAPIView):
     """
