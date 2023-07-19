@@ -7,4 +7,5 @@ class FiatWalletAdmin(admin.ModelAdmin):
 
 @admin.register(CryptoWallet)
 class CryptoWalletAdmin(admin.ModelAdmin):
-    list_display = ['user', 'wallet_type', 'balance']
+    list_display = ['user', 'wallet_type', 'balance', 'symbol']
+    list_editable = ['symbol', 'balance']
