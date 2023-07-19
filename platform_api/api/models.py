@@ -12,6 +12,7 @@ class FiatWallet(models.Model):
 class CryptoWallet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     wallet_type = models.CharField(max_length=100)
+    symbol = models.CharField(max_length=100, default='')
     balance = models.DecimalField(max_digits=14, decimal_places=8)
     address = models.CharField(max_length=100)
 
