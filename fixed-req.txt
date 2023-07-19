@@ -1,5 +1,6 @@
 asgiref==3.7.2
 backports.zoneinfo==0.2.1
+binance-connector
 Django==4.1
 django-rest-framework==0.1.0
 djangorestframework==3.14.0
