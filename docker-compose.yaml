@@ -1,6 +1,8 @@
 version: '3'
 services:
   authentication:
+    env_file:
+      - .env
     build:
       context: ./authentication
     ports:
@@ -15,6 +17,8 @@ services:
         POSTGRES_PASSWORD: novacryptotradingplatform
   
   platform_api:
+    env_file:
+        - .env
     build:
       context: ./platform_api
     ports:
@@ -28,6 +32,22 @@ services:
         POSTGRES_USER: crypto_admin
         POSTGRES_PASSWORD: novacryptotradingplatform
   
+  transactions:
+    env_file:
+      - .env
+    build:
+      context: ./invoice_transactions
+    ports:
+      - 2950:2950
+    volumes:
+      - ./invoice_transactions:/app
+    depends_on:
+      - db
+    environment:
+        POSTGRES_DB: nova_crypto
+        POSTGRES_USER: crypto_admin
+        POSTGRES_PASSWORD: novacryptotradingplatform
+
   db:
       image: postgres:alpine
       container_name: postgres_db
