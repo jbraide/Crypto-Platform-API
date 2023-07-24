@@ -7,6 +7,7 @@ from rest_framework.generics import CreateAPIView, \
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from cryptomus import Client
 from dotenv import load_dotenv
 
@@ -138,6 +139,53 @@ class CreateBaseCryptoWallets(GenericAPIView):
         CryptoWallet.objects.bulk_create(wallet_objects)
 
 
+class CreateFiatWallet(CreateAPIView):
+    serializer_class = FiatWalletSerializer
+    queryset = FiatWallet.objects.all()
+    permission_classes = [IsAuthenticated, ]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        fiat_type = serializer.validated_data.get('fiat_type')
+
+        # Check if the user already has a wallet with the same fiat_type
+        existing_wallet = FiatWallet.objects.filter(user=user, fiat_type=fiat_type).exists()
+
+        if existing_wallet:
+            raise ValidationError(f"You already have a wallet of {fiat_type}.")
+
+        serializer.save(user=user)
+    # def post(self, request, *args, **kwargs):
+    #     try:
+    #         self.create_fiat_wallet(request.user)
+    #     except:
+    #         return Response(
+    #             data={
+    #             'status': 'error',
+    #             'message': 'You already This wallet created',
+    #         },
+    #         status=400
+    #         )
+        
+    #     return Response(
+    #         data={
+    #             'status': 'success',
+    #             'message': 'Wallet Created'
+    #         },
+    #         status=201
+    #     )
+    
+    # def create_fiat_wallet(self, user):
+    #     user = User.objects.get(username=user)
+
+    #     FiatWallet.objects.create(
+    #         user=user,
+    #         fiat_type='USD',
+    #         balance=0.0
+    #     )
+
+    
+    
 ###########
 # 
 # Crytpo market Pricing  API's

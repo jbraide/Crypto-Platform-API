@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
-    CreateBaseCryptoWallets, 
+    CreateBaseCryptoWallets,
+    CreateFiatWallet,
     DashboardHomeView, 
     GetCryptoMarketPriceAPI, 
     GetKlinePrices,
@@ -18,6 +19,7 @@ urlpatterns = [
 
     # wallets
     path('create-base-crypto-wallets/', CreateBaseCryptoWallets.as_view()),
+    path('create-base-fiat-wallet/', CreateFiatWallet.as_view(),),
 
     # market information
     path('crypto-market-pricing/', GetCryptoMarketPriceAPI.as_view()),
