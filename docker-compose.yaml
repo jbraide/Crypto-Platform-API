@@ -12,11 +12,9 @@ services:
     depends_on:
       - db
     environment:
-        POSTGRES_DB: nova_crypto
-        POSTGRES_USER: crypto_admin
-        POSTGRES_PASSWORD: novacryptotradingplatform
+        - DJANGO_SETTINGS_MODULE=authentication.settings_dev
   
-  platform_api:
+  platform-api:
     env_file:
         - .env
     build:
@@ -28,9 +26,7 @@ services:
     depends_on:
       - db
     environment:
-        POSTGRES_DB: nova_crypto
-        POSTGRES_USER: crypto_admin
-        POSTGRES_PASSWORD: novacryptotradingplatform
+        - DJANGO_SETTINGS_MODULE=platform_api.settings_dev
   
   transactions:
     env_file:
@@ -44,9 +40,7 @@ services:
     depends_on:
       - db
     environment:
-        POSTGRES_DB: nova_crypto
-        POSTGRES_USER: crypto_admin
-        POSTGRES_PASSWORD: novacryptotradingplatform
+        - DJANGO_SETTINGS_MODULE=invoice_transactions.settings_dev
 
   db:
       image: postgres:alpine
