@@ -6,7 +6,8 @@ from .views import (
     GetKlinePrices,
     BuyCryptoCurrency,
     SellCryptoCurrency,
-    DepositToFiatWallet
+    DepositToFiatWallet,
+    PaymentStatusReturn
     )
 
 app_name = 'platform-api'
@@ -25,5 +26,6 @@ urlpatterns = [
     # Crypto Trading
     path('buy-crypto/', BuyCryptoCurrency.as_view(),),
     path('sell-crypto/', SellCryptoCurrency.as_view(),),
-    path('deposit/fiat/', DepositToFiatWallet.as_view())
+    path('deposit/fiat/', DepositToFiatWallet.as_view()),
+    path('payment-status/update/', PaymentStatusReturn.as_view()),
 ]
