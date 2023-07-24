@@ -1,4 +1,6 @@
-# packages
+import json, os
+import requests
+from uuid import uuid4
 from django.contrib.auth.models import User
 from rest_framework.generics import CreateAPIView, \
     GenericAPIView, ListAPIView
@@ -6,13 +8,15 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from cryptomus import Client
+from dotenv import load_dotenv
 
 from .models import CryptoWallet, FiatWallet
 from .serializers import \
     CryptoWalletSerializer, CryptoPurchaseSerializer, FiatWalletSerializer, \
     FundFiatWalletSerializer
-from .mixins import BinancePackageMixin, BuySellPostMixin
+from .mixins import BinancePackageMixin, BuySellPostMixin, CreateTransactionMixin
 
+load_dotenv()
 
 ###########
 # 
@@ -175,7 +179,7 @@ class SellCryptoCurrency(BuySellPostMixin, GenericAPIView):
     serializer_class = CryptoPurchaseSerializer
     transaction_type = 'sell'
 
-class DepositToFiatWallet(GenericAPIView):
+class DepositToFiatWallet(CreateTransactionMixin, GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FundFiatWalletSerializer
 
@@ -196,23 +200,51 @@ class DepositToFiatWallet(GenericAPIView):
                     },
                     status=400
                 )
+            id = uuid4()
+            jwt = request.auth
             
-            merchant_id = 'c0713293-08b6-4060-9660-fb777ee3182a'
-            api_key = 'i6LJ40xMKLFrTdNKvC2hVhb11IqhswEdtkZu2O5sg5EYhGUIP4iiQ3mZTH1UX2UZYv9HBybVFH066gcyGyF6BQ6kP2lgDDe6LUipqzS0svucxLeyAdfuivK1lhzLecc1'
+            ''' Connect to the transactions microservice to create a transaction '''
+            deposit_information = {
+                'id':  id,
+                'type_of_transaction': 'Deposit',
+                'amount': amount,
+                "paid_from": "Crypto",
+                "payment_destination": "USD",
+                "jwt": jwt,
+            }
+            try:
+                trans_response = self.create_transaction(deposit_information)
             
+            except requests.exceptions.RequestException as e:
+                return Response(
+                    data={
+                        'error': e,
+                    },
+                    status=400,
+                )
+
+            # create the payment invoice with cryptomus
+            merchant_id = os.getenv('CRYPTOMUS_MERCHANT_KEY')
+            api_key = os.getenv('CRYPTOMUS_API_KEY')
+            
+
             data = {
                 'amount': str(amount),
                 'currency': 'USD',
-                'order_id': '1', # replace this with a dynamic ID
-                'payer_amount': str(amount + (amount * 0.1))
+                'order_id': str(id), # replace this with a dynamic ID
+                'payer_amount': str(amount + (amount * 0.1)),
+                # 'url_callback': 'http://localhost:250/v1/payment-status/',
+                # 'url_return': '',
+                # 'lifetime': ''
             }
-            # print(data)
             payment = Client.payment(api_key, merchant_id)
             response = payment.create(data)
-
             
             return Response(
-                response, 
+                {
+                    'payment_response':response,
+                    'trans_response': trans_response.json(),
+                }, 
                 status=200
             )   
         return Response(
@@ -227,4 +259,5 @@ class PaymentStatusReturn(GenericAPIView):
     serializer_class = None
 
     def post(self, request, *args, **kwargs):
+        print(request.POST.dict())
         pass
