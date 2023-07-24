@@ -49,7 +49,7 @@ services:
       environment:
         POSTGRES_DB: prodserver
         POSTGRES_USER: novacrypto
-        POSTGRES_PASSWORD: +)3&f3MB^Yc_/,)}
+        POSTGRES_PASSWORD: uYtakwtHMaX7sk9w
       volumes:
         - postgres_data:/var/lib/postgresql/data
 
