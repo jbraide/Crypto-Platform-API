@@ -47,9 +47,9 @@ services:
       container_name: postgres_db
       restart: always
       environment:
-        POSTGRES_DB: prodserver
-        POSTGRES_USER: novacrypto
-        POSTGRES_PASSWORD: uYtakwtHMaX7sk9w
+        POSTGRES_DB: nova_crypto
+        POSTGRES_USER: crypto_admin
+        POSTGRES_PASSWORD: novacryptotradingplatform
       volumes:
         - postgres_data:/var/lib/postgresql/data
 
