@@ -1,3 +1,5 @@
+import requests
+from uuid import uuid4
 from rest_framework.response import Response
 from binance.spot import Spot
 from .models import CryptoWallet, FiatWallet
@@ -35,8 +37,36 @@ class BinancePackageMixin(Spot):
 
 
 class CreateTransactionMixin:
-    def create_transaction(self):
-        pass
+    def create_transaction(self, trans_details: dict):
+
+        trans_data = {
+            "transaction_id": str(trans_details['id']),
+            "type_of_transaction": trans_details['type_of_transaction'],
+            "status": "Unpaid",
+            "amount": trans_details['amount'],
+            "paid_from": trans_details['paid_from'],
+            "payment_destination": trans_details['payment_destination']
+        }
+        
+        headers = {
+            'Authorization': f'Bearer {trans_details["jwt"]}',
+            'Content-Type': 'application/json',  # Set the content type as per your API's requirements
+        }
+        url = 'http://transactions:2950/transaction/list-create/' # inspect the url later "transactions:2950"
+        
+        
+        try:
+            return requests.post(
+            url=url,
+            json=trans_data,
+            headers=headers
+        )
+        except requests.exceptions.RequestException as e:
+            return Response(
+                data={
+                    'error': e,
+                }
+            )
 
 class BuySellPostMixin(CreateTransactionMixin, BinancePackageMixin):
     transaction_type = None # buy/sell
@@ -133,7 +163,17 @@ class BuySellPostMixin(CreateTransactionMixin, BinancePackageMixin):
         CryptoWallet.objects.filter(symbol=crypto_to_purchase).update(balance=updated_wallet_balance)
 
         # create a transaction through API request
-        self.create_transaction()
+        id = uuid4()
+        jwt = self.request.auth
+        buy_information = {
+            'id':  id,
+            'type_of_transaction': 'Buy',
+            'amount': adjusted_price,
+            "paid_from": payment_method,
+            "payment_destination": crypto_to_purchase,
+            "jwt": jwt,
+        }
+        self.create_transaction(buy_information)
         return crypto_purchased
     
     def process_sell(self, balance, price, crypto_to_purchase, payment_method, crypto_wallet_balance):
@@ -151,8 +191,20 @@ class BuySellPostMixin(CreateTransactionMixin, BinancePackageMixin):
         updated_wallet_balance = float(crypto_wallet_balance) - crypto_purchased
         CryptoWallet.objects.filter(symbol=crypto_to_purchase).update(balance=updated_wallet_balance)
 
+
         # create a transaction through API request
-        self.create_transaction()
+        # create a transaction through API request
+        id = uuid4()
+        jwt = self.request.auth
+        sell_information = {
+            'id':  id,
+            'type_of_transaction': 'Sell',
+            'amount': adjusted_price,
+            "paid_from": payment_method,
+            "payment_destination": crypto_to_purchase,
+            "jwt": jwt,
+        }
+        self.create_transaction(sell_information)
         return crypto_purchased
 
     def get_transaction_type(self, balance, price, crypto_to_purchase, payment_method, crypto_wallet_balance):
